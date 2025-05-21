@@ -25,17 +25,34 @@ document.addEventListener('DOMContentLoaded', () => {
         cardsArray.sort(() => 0.5 - Math.random());
     }
 
+    function createCard(item) {
+        const card = document.createElement('div');
+        card.classList.add('memory-card');
+        card.dataset.name = item.name;
+
+        const frontImg = document.createElement('img');
+        frontImg.className = 'front';
+        frontImg.src = item.img;
+        frontImg.alt = item.name;
+        frontImg.setAttribute('draggable', 'false');
+
+        const backImg = document.createElement('img');
+        backImg.className = 'back';
+        backImg.src = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+        backImg.alt = 'Card Back';
+        backImg.setAttribute('draggable', 'false');
+
+        card.appendChild(frontImg);
+        card.appendChild(backImg);
+        card.addEventListener('click', flipCard);
+        return card;
+    }
+
     function createBoard() {
+        gameBoard.innerHTML = '';
         shuffle();
         cardsArray.forEach(item => {
-            const card = document.createElement('div');
-            card.classList.add('memory-card');
-            card.dataset.name = item.name;
-            card.innerHTML = `
-                <img class="front" src="${item.img}" alt="${item.name}">
-                <img class="back" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="blank">
-            `;
-            card.addEventListener('click', flipCard);
+            const card = createCard(item);
             gameBoard.appendChild(card);
         });
     }
@@ -70,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (matchedPairs === cardsArray.length / 2) {
             winMessage.classList.remove('d-none');
+            winMessage.classList.add('show');
         }
 
         resetBoard();
@@ -80,13 +98,28 @@ document.addEventListener('DOMContentLoaded', () => {
             firstCard.classList.remove('flip');
             secondCard.classList.remove('flip');
             resetBoard();
-        }, 1500);
+        }, 1000);
     }
 
     function resetBoard() {
         [hasFlippedCard, lockBoard] = [false, false];
         [firstCard, secondCard] = [null, null];
     }
+
+    function restartGame() {
+        matchedPairs = 0;
+        winMessage.classList.add('d-none');
+        winMessage.classList.remove('show');
+        createBoard();
+    }
+
+    // Tambahkan tombol restart
+    const restartBtn = document.createElement('button');
+    restartBtn.className = 'btn btn-primary mb-3 mx-auto d-block';
+    restartBtn.textContent = 'Restart Game';
+    restartBtn.setAttribute('aria-label', 'Restart Game');
+    restartBtn.addEventListener('click', restartGame);
+    document.querySelector('.container').insertBefore(restartBtn, gameBoard);
 
     createBoard();
 });
